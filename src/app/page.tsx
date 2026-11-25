@@ -17,6 +17,18 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [moveError, setMoveError] = useState<string | null>(null);
   const [movingTaskIds, setMovingTaskIds] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [debouncedQuery, setDebouncedQuery] = useState<string>('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 300);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchQuery]);
 
   useEffect(() => {
     let isMounted = true;
@@ -77,6 +89,13 @@ export default function Home() {
     }
   }
 
+  const normalizedQuery = debouncedQuery.trim().toLowerCase();
+  const filteredTasks = normalizedQuery
+    ? tasks.filter((task) =>
+        task.title.toLowerCase().includes(normalizedQuery)
+      )
+    : tasks;
+
   return (
     <main className={styles.main}>
       <header className={styles.header}>
@@ -97,6 +116,20 @@ export default function Home() {
 
       {!isLoading && !error && (
         <>
+          <div className={styles.searchContainer}>
+            <label htmlFor="search-tasks" className={styles.searchLabel}>
+              Search tasks
+            </label>
+            <input
+              id="search-tasks"
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Filter by title"
+              className={styles.searchInput}
+            />
+          </div>
+
           {moveError && (
             <div role="alert" className={styles.moveErrorBanner}>
               <p className={styles.errorMessage}>{moveError}</p>
@@ -113,7 +146,7 @@ export default function Home() {
 
           <div className={styles.board}>
             {COLUMNS.map((column) => {
-              const columnTasks = tasks.filter(
+              const columnTasks = filteredTasks.filter(
                 (task) => task.status === column.status
               );
               const headingId = `column-heading-${column.status.toLowerCase()}`;

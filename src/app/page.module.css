@@ -9,6 +9,34 @@
   margin-bottom: 1.5rem;
 }
 
+.searchContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin-bottom: 1.5rem;
+  max-width: 24rem;
+}
+
+.searchLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.searchInput {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9375rem;
+  color: #111827;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+}
+
+.searchInput:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
 .title {
   font-size: 2rem;
   font-weight: 700;
