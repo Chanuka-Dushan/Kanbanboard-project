@@ -2,8 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { getTasks } from '@/api/tasks';
-import type { Task } from '@/types';
+import type { Task, TaskStatus } from '@/types';
 import styles from './page.module.css';
+
+const COLUMNS: { status: TaskStatus; label: string }[] = [
+  { status: 'TODO', label: 'To do' },
+  { status: 'IN_PROGRESS', label: 'In progress' },
+  { status: 'DONE', label: 'Done' },
+];
 
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -54,10 +60,48 @@ export default function Home() {
       )}
 
       {!isLoading && !error && (
-        <div className={styles.content}>
-          <p className={styles.taskCount}>
-            Loaded {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}.
-          </p>
+        <div className={styles.board}>
+          {COLUMNS.map((column) => {
+            const columnTasks = tasks.filter(
+              (task) => task.status === column.status
+            );
+            const headingId = `column-heading-${column.status.toLowerCase()}`;
+
+            return (
+              <section
+                key={column.status}
+                aria-labelledby={headingId}
+                className={styles.column}
+              >
+                <header className={styles.columnHeader}>
+                  <h2 id={headingId} className={styles.columnTitle}>
+                    {column.label}{' '}
+                    <span className={styles.columnCount}>
+                      ({columnTasks.length})
+                    </span>
+                  </h2>
+                </header>
+
+                <ul className={styles.taskList}>
+                  {columnTasks.map((task) => (
+                    <li key={task.id} className={styles.card}>
+                      <h3 className={styles.cardTitle}>{task.title}</h3>
+                      {task.description && (
+                        <p className={styles.cardDescription}>
+                          {task.description}
+                        </p>
+                      )}
+                      {task.dueDate && (
+                        <p className={styles.cardDueDate}>
+                          Due {task.dueDate}
+                        </p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })}
         </div>
       )}
     </main>

@@ -35,11 +35,70 @@
   color: #b91c1c;
 }
 
-.content {
-  margin-top: 1rem;
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+  align-items: start;
 }
 
-.taskCount {
-  color: #374151;
+.column {
+  background-color: #f3f4f6;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.columnHeader {
+  margin-bottom: 0.75rem;
+}
+
+.columnTitle {
   font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.columnCount {
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.taskList {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  padding: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.cardTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.cardDescription {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.cardDueDate {
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+
+@media (max-width: 767px) {
+  .board {
+    grid-template-columns: 1fr;
+  }
 }
