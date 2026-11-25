@@ -80,6 +80,69 @@
   margin-bottom: 0.75rem;
 }
 
+.addTaskForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin-bottom: 0.75rem;
+}
+
+.addTaskLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.addTaskRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.addTaskInput {
+  flex: 1;
+  min-width: 0;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.875rem;
+  color: #111827;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+}
+
+.addTaskInput:focus-visible,
+.addTaskButton:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.addTaskButton {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.addTaskButton:hover:not(:disabled) {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.addTaskButton:disabled,
+.addTaskInput:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.fieldError {
+  font-size: 0.8125rem;
+  color: #b91c1c;
+}
+
 .columnTitle {
   font-size: 1rem;
   font-weight: 700;

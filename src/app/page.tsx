@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { getTasks, updateTaskStatus } from '@/api/tasks';
+import { useEffect, useState, type FormEvent } from 'react';
+import { createTask, getTasks, updateTaskStatus } from '@/api/tasks';
 import type { Task, TaskStatus } from '@/types';
 import styles from './page.module.css';
 
@@ -11,6 +11,26 @@ const COLUMNS: { status: TaskStatus; label: string }[] = [
   { status: 'DONE', label: 'Done' },
 ];
 
+function isValidFutureOrTodayDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return false;
+  }
+
+  const [year, month, day] = value.split('-').map(Number);
+  const parsed = new Date(year, month - 1, day);
+  if (
+    parsed.getFullYear() !== year ||
+    parsed.getMonth() !== month - 1 ||
+    parsed.getDate() !== day
+  ) {
+    return false;
+  }
+
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return parsed >= today;
+}
+
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -19,6 +39,9 @@ export default function Home() {
   const [movingTaskIds, setMovingTaskIds] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [debouncedQuery, setDebouncedQuery] = useState<string>('');
+  const [newTaskTitle, setNewTaskTitle] = useState<string>('');
+  const [newTaskError, setNewTaskError] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState<boolean>(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -86,6 +109,61 @@ export default function Home() {
         next.delete(task.id);
         return next;
       });
+    }
+  }
+
+  async function handleAddTask(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const trimmedTitle = newTaskTitle.trim();
+    if (!trimmedTitle) {
+      setNewTaskError('Title is required.');
+      return;
+    }
+
+    if (trimmedTitle.length > 80) {
+      setNewTaskError('Title must be at most 80 characters.');
+      return;
+    }
+
+    const descriptionInput = window.prompt('Enter description (optional):');
+    if (descriptionInput === null) {
+      return;
+    }
+
+    const dueDateInput = window.prompt(
+      'Enter due date in YYYY-MM-DD format (optional):'
+    );
+    if (dueDateInput === null) {
+      return;
+    }
+
+    const trimmedDescription = descriptionInput.trim();
+    const trimmedDueDate = dueDateInput.trim();
+
+    if (trimmedDueDate && !isValidFutureOrTodayDate(trimmedDueDate)) {
+      setNewTaskError('Due date must be today or a future date (YYYY-MM-DD).');
+      return;
+    }
+
+    setNewTaskError(null);
+    setIsCreating(true);
+
+    try {
+      const created = await createTask({
+        title: trimmedTitle,
+        status: 'TODO',
+        description: trimmedDescription || undefined,
+        dueDate: trimmedDueDate || undefined,
+      });
+      setTasks((prev) => [created, ...prev]);
+      setNewTaskTitle('');
+    } catch (err) {
+      setNewTaskError(
+        err instanceof Error ? err.message : 'Failed to create task'
+      );
+    } finally {
+      setIsCreating(false);
     }
   }
 
@@ -165,6 +243,56 @@ export default function Home() {
                       </span>
                     </h2>
                   </header>
+
+                  {column.status === 'TODO' && (
+                    <form
+                      onSubmit={handleAddTask}
+                      className={styles.addTaskForm}
+                      noValidate
+                    >
+                      <label
+                        htmlFor="new-task-title"
+                        className={styles.addTaskLabel}
+                      >
+                        New task
+                      </label>
+                      <div className={styles.addTaskRow}>
+                        <input
+                          id="new-task-title"
+                          type="text"
+                          value={newTaskTitle}
+                          onChange={(e) => {
+                            setNewTaskTitle(e.target.value);
+                            if (newTaskError) {
+                              setNewTaskError(null);
+                            }
+                          }}
+                          disabled={isCreating}
+                          aria-invalid={Boolean(newTaskError)}
+                          aria-describedby={
+                            newTaskError ? 'new-task-error' : undefined
+                          }
+                          className={styles.addTaskInput}
+                        />
+                        <button
+                          type="submit"
+                          disabled={isCreating}
+                          className={styles.addTaskButton}
+                        >
+                          {isCreating ? 'Adding...' : 'Add task'}
+                        </button>
+                      </div>
+                      {newTaskError && (
+                        <p
+                          id="new-task-error"
+                          role="alert"
+                          className={styles.fieldError}
+                        >
+                          {newTaskError}
+                        </p>
+                      )}
+                    </form>
+                  )}
 
                   <ul className={styles.taskList}>
                     {columnTasks.map((task) => {
