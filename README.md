@@ -17,7 +17,7 @@ npm install
 npm run dev
 ```
 
-Then open http://localhost:3000. You should see a "Task Board" heading and a short message.
+Then open http://localhost:3000 to view and use the Task Board.
 
 Other useful commands:
 
@@ -37,7 +37,8 @@ Other useful commands:
 src/
 ├── app/
 │   ├── layout.tsx     # root layout
-│   ├── page.tsx       # placeholder page: start here
+│   ├── page.tsx       # Kanban board page (Client Component)
+│   ├── page.module.css# styles for the Kanban board
 │   └── globals.css    # a small CSS reset
 ├── types.ts           # Task, TaskStatus and CreateTaskInput types
 └── api/
@@ -133,3 +134,14 @@ You'll be asked to make some changes to this code **live**, without AI, while sh
 - Use `?failRate=1` to make every move fail, so you can test your error handling.
 - Any value from `0` to `1` works, e.g. `?failRate=0.5`.
 - Read `src/api/tasks.ts` if you want to see exactly how the API behaves.
+
+---
+
+## 7. What was implemented
+
+- **Three-column Kanban board**: `To do` (`TODO`), `In progress` (`IN_PROGRESS`), and `Done` (`DONE`) with live task counts in each column header and a responsive layout that stacks into a single column below `768px`.
+- **Loading and error states**: Displays a loading indicator while tasks are initially fetched (`getTasks`) and an alert banner if loading or moving a task fails.
+- **Optimistic task moves**: Each card provides `Move to <Column>` buttons (`updateTaskStatus`). Moves update the UI and column counts immediately and roll back to the previous column with a dismissible error banner if the API call fails.
+- **Debounced title search**: A labelled `Search tasks` input filters tasks by title (case-insensitive) using a custom 300 ms `setTimeout`/`clearTimeout` debounce.
+- **Inline "Add task" form**: Located in the `To do` column, validating that the title is required and at most 80 characters (with inline errors under the field), prompting for optional description and due date, and validating that any entered due date is today or a future `YYYY-MM-DD` date before calling `createTask`.
+- **Accessibility & styling**: Plain CSS Modules (`src/app/page.module.css`), native `<button>` elements, labelled inputs, `role="status"`/`role="alert"` live regions, and `:focus-visible` outlines.
